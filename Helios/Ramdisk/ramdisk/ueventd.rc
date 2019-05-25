@@ -97,10 +97,14 @@ subsystem adf
 /dev/ts0710mux*           0640   radio      radio
 /dev/ppp                  0660   radio      vpn
 
+# for PL2303 driver
+/dev/ttyUSB*              0660   system     usb
+
 # sysfs properties
 /sys/devices/platform/trusty.*      trusty_version        0440  root   log
 /sys/devices/virtual/input/input*   enable      0660  root   input
 /sys/devices/virtual/input/input*   poll_delay  0660  root   input
+/sys/devices/virtual/input/input*   name        0440  root   input
 /sys/devices/virtual/usb_composite/*   enable      0664  root   system
 /sys/devices/system/cpu/cpu*   cpufreq/scaling_max_freq   0664  system system
 /sys/devices/system/cpu/cpu*   cpufreq/scaling_min_freq   0664  system system
@@ -119,6 +123,9 @@ subsystem adf
 /dev/ssp_sensorhub        0660   system     system
 /dev/ssp_data_injection   0660   system     system
 
+# Reactivation Lock
+/dev/block/mmcblk0rpmb	0660	system	system
+
 # Fingerprint Sensor
 /dev/vfsspi        0660   system     system
 /dev/esfp0        0660   system     system
@@ -130,6 +137,6 @@ subsystem adf
 # Sensorhub IIO
 /dev/ssp_sensorhub        0660   system		system
 /dev/iio:device*          0660   system		system
-/sys/devices/13930000.spi/spi_master/spi2/spi2.0/iio:device*    buffer/enable       0660    system    system
-/sys/devices/13930000.spi/spi_master/spi2/spi2.0/iio:device*    buffer/length       0660    system    system
+/sys/devices/14d20000.spi/spi_master/spi0/spi0.0/iio:device*    buffer/enable       0660    system    system
+/sys/devices/14d20000.spi/spi_master/spi0/spi0.0/iio:device*    buffer/length       0660    system    system
 /sys/bus/iio/devices/iio:device*    0664   system     radio

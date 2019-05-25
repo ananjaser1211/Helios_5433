@@ -2,6 +2,7 @@
 # ADDITIONAL_DEFAULT_PROPERTIES
 #
 telephony.lteOnCdmaDevice=0
+rild.libpath=/system/lib/libsec-ril.so
 persist.security.ams.enforcing=1
 ro.oem_unlock_supported=0
 ro.secure=0
@@ -32,10 +33,10 @@ debug.atrace.tags.enableflags=0
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
-ro.bootimage.build.date=Mon Aug 6 15:34:53 KST 2018
-ro.bootimage.build.date.utc=1533537293
-ro.bootimage.build.fingerprint=samsung/gts28ltexx/gts28lte:7.0/NRD90M/T715XXU2CRH1:user/test-keys
-# Helios Tweaks
+ro.bootimage.build.date=Thu Mar 8 16:08:59 KST 2018
+ro.bootimage.build.date.utc=1520492939
+ro.bootimage.build.fingerprint=samsung/nobleltejv/noblelte:7.0/NRD90M/N920CXXS4CRC3:user/test-keys
+# Refined Tweaks
 ro.config.tima=0
 ro.security.vaultkeeper.feature=0
 ro.frp.pst=
@@ -45,4 +46,3 @@ ro.config.rkp=false
 ro.config.kap=false
 ro.config.tima=0
 wlan.wfd.hdcp=disable
-ro.multisim.simslotcount=1

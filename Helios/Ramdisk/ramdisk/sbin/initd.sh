@@ -34,6 +34,18 @@ if [ ! -d /system/etc/init.d ]; then
 	$RUN chmod 777 /system/etc/init.d/*
 fi
 
+killer=/system/etc/init.d/99killer
+if [ ! -s $killer ]; then 
+    cp /sbin/99killer /system/etc/init.d/99killer
+	$RUN chmod 777 /system/etc/init.d/99killer
+fi
+
+gps=/system/etc/init.d/98gps
+if [ ! -s $gps ]; then 
+    cp /sbin/98gps /system/etc/init.d/98gps
+	$RUN chmod 777 /system/etc/init.d/98gps
+fi
+
 # Execute scripts
 for FILE in /system/etc/init.d/*; do
 	sh $FILE >/dev/null

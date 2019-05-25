@@ -125,8 +125,8 @@
 # fingerprint sensor
 /dev/vfsspi        0660   system     system
 /dev/esfp0        0660   system     system
-/dev/block/platform/15540000.dwmmc0/by-name/RADIO          0660   system     radio
-/dev/block/platform/15540000.dwmmc0/by-name/TOMBSTONES     0660   system     radio
+/dev/block/mmcblk0p13     0660   system     radio
+/dev/block/mmcblk0p14     0660   system     radio
 /dev/umts*                0660   system     radio
 /dev/umts_csd             0660   system     loop_radio
 
