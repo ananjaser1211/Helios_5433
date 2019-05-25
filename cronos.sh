@@ -135,9 +135,17 @@ PACK_BOOT_IMG()
 	cp -rf $CR_RAMDISK_MAIN/* $CR_AIK
     # Device specific changes
 	cp -rf $CR_RAMDISK_SUB/* $CR_AIK
+    # To avoid any permission issues
+    echo "Fix Ramdisk Permissions"
+    cd $CR_RAMDISK_MAIN
+    find -type d -exec chmod 755 {} \;
+    find -type f -exec chmod 644 {} \;
+    find -name "*.rc" -exec chmod 750 {} \;
+    find -name "*.sh" -exec chmod 750 {} \;
+    chmod -Rf 750 init sbin
     # Move Compiled kernel and dtb to A.I.K Folder
 	mv $CR_KERNEL $CR_AIK/split_img/boot.img-zImage
-	mv $CR_DTB $CR_AIK/split_img/boot.img-dt
+	mv $CR_DTB $CR_AIK/split_img/boot.img-dtb
     # Create boot.img
 	$CR_AIK/repackimg.sh
     # Remove red warning at boot
