@@ -1015,6 +1015,19 @@ struct sched_avg {
 	u32 usage_avg_sum;
 };
 
+#ifdef CONFIG_SCHED_HMP
+/*
+ * We want to avoid boosting any processes forked from init (PID 1)
+ * and kthreadd (assumed to be PID 2).
+ */
+#define hmp_task_should_forkboost(task) ((task->parent && task->parent->pid > 2 && \
+/*
+ * also avoid boosting background Android apps(oom_adj >= 5)
+ * 5 oom_adj is equals to 294 oom_score_adj
+ */ \
+					  task->signal->oom_score_adj < 294))
+#endif
+
 #ifdef CONFIG_SCHEDSTATS
 struct sched_statistics {
 	u64			wait_start;
