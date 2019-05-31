@@ -133,7 +133,6 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
 	struct ipv6_pinfo *np = inet6_sk(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct in6_addr *saddr = NULL, *final_p, final;
-	struct ipv6_txoptions *opt;
 	struct rt6_info *rt;
 	struct flowi6 fl6;
 	struct dst_entry *dst;
@@ -255,8 +254,7 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
 	fl6.fl6_sport = inet->inet_sport;
 	fl6.flowi6_uid = sock_i_uid(sk);
 
-	opt = rcu_dereference_protected(np->opt, sock_owned_by_user(sk));
-	final_p = fl6_update_dst(&fl6, opt, &final);
+	final_p = fl6_update_dst(&fl6, np->opt, &final);
 
 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
 
@@ -285,9 +283,9 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
 		tcp_fetch_timewait_stamp(sk, dst);
 
 	icsk->icsk_ext_hdr_len = 0;
-	if (opt)
-		icsk->icsk_ext_hdr_len = opt->opt_flen +
-					 opt->opt_nflen;
+	if (np->opt)
+		icsk->icsk_ext_hdr_len = (np->opt->opt_flen +
+					  np->opt->opt_nflen);
 
 	tp->rx_opt.mss_clamp = IPV6_MIN_MTU - sizeof(struct tcphdr) - sizeof(struct ipv6hdr);
 
@@ -483,8 +481,7 @@ static int tcp_v6_send_synack(struct sock *sk, struct dst_entry *dst,
 
 		fl6->daddr = treq->rmt_addr;
 		skb_set_queue_mapping(skb, queue_mapping);
-		err = ip6_xmit(sk, skb, fl6, rcu_dereference(np->opt),
-			       np->tclass);
+		err = ip6_xmit(sk, skb, fl6, np->opt, np->tclass);
 		err = net_xmit_eval(err);
 	}
 
@@ -907,22 +904,9 @@ static void tcp_v6_timewait_ack(struct sock *sk, struct sk_buff *skb)
 static void tcp_v6_reqsk_send_ack(struct sock *sk, struct sk_buff *skb,
 				  struct request_sock *req)
 {
-#ifdef CONFIG_MPTCP
-	/* sk->sk_state == TCP_LISTEN -> for regular TCP_SYN_RECV
-	 * sk->sk_state == TCP_SYN_RECV -> for Fast Open.
-	 */
-	tcp_v6_send_ack(sk, skb, (sk->sk_state == TCP_LISTEN) ?
-			tcp_rsk(req)->snt_isn + 1 : tcp_sk(sk)->snd_nxt,
-			tcp_rsk(req)->rcv_nxt, 0,
-			req->rcv_wnd, tcp_time_stamp, req->ts_recent, sk->sk_bound_dev_if,
-			tcp_v6_md5_do_lookup(sk, &ipv6_hdr(skb)->daddr),
-			0, 0, 0);
-#else
-	tcp_v6_send_ack(sk, skb, tcp_rsk(req)->snt_isn + 1, tcp_rsk(req)->rcv_isn + 1,
-			req->rcv_wnd >> inet_rsk(req)->rcv_wscale,
-			tcp_time_stamp, req->ts_recent,
+	tcp_v6_send_ack(skb, tcp_rsk(req)->snt_isn + 1, tcp_rsk(req)->rcv_isn + 1,
+			req->rcv_wnd, tcp_time_stamp, req->ts_recent,
 			tcp_v6_md5_do_lookup(sk, &ipv6_hdr(skb)->daddr), 0);
-#endif
 }
 
 
@@ -1106,7 +1090,6 @@ static struct sock * tcp_v6_syn_recv_sock(struct sock *sk, struct sk_buff *skb,
 	struct inet6_request_sock *treq;
 	struct ipv6_pinfo *newnp, *np = inet6_sk(sk);
 	struct tcp6_sock *newtcp6sk;
-	struct ipv6_txoptions *opt;
 	struct inet_sock *newinet;
 	struct tcp_sock *newtp;
 	struct sock *newsk;
@@ -1240,15 +1223,13 @@ static struct sock * tcp_v6_syn_recv_sock(struct sock *sk, struct sk_buff *skb,
 	   but we make one more one thing there: reattach optmem
 	   to newsk.
 	 */
-	opt = rcu_dereference(np->opt);
-	if (opt) {
-		opt = ipv6_dup_options(newsk, opt);
-		RCU_INIT_POINTER(newnp->opt, opt);
-	}
+	if (np->opt)
+		newnp->opt = ipv6_dup_options(newsk, np->opt);
+
 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
-	if (opt)
-		inet_csk(newsk)->icsk_ext_hdr_len = opt->opt_nflen +
-						    opt->opt_flen;
+	if (newnp->opt)
+		inet_csk(newsk)->icsk_ext_hdr_len = (newnp->opt->opt_nflen +
+						     newnp->opt->opt_flen);
 
 	tcp_mtup_init(newsk);
 	tcp_sync_mss(newsk, dst_mtu(dst));
@@ -1346,12 +1327,7 @@ static int tcp_v6_do_rcv(struct sock *sk, struct sk_buff *skb)
 		goto discard;
 #endif
 
-#ifdef CONFIG_MPTCP
-	if (is_meta_sk(sk))
-		return mptcp_v6_do_rcv(sk, skb);
-#endif
-
-	if (tcp_filter(sk, skb))
+	if (sk_filter(sk, skb))
 		goto discard;
 
 	/*
@@ -1522,10 +1498,8 @@ process:
 	if (!xfrm6_policy_check(sk, XFRM_POLICY_IN, skb))
 		goto discard_and_relse;
 
-	if (tcp_filter(sk, skb))
+	if (sk_filter(sk, skb))
 		goto discard_and_relse;
-	th = (const struct tcphdr *)skb->data;
-	hdr = ipv6_hdr(skb);
 
 	skb->dev = NULL;
 
@@ -1977,7 +1951,6 @@ struct proto tcpv6_prot = {
 	.proto_cgroup		= tcp_proto_cgroup,
 #endif
 	.clear_sk		= tcp_v6_clear_sk,
-	.diag_destroy		= tcp_abort,
 };
 
 static const struct inet6_protocol tcpv6_protocol = {
