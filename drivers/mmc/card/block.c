@@ -1256,8 +1256,7 @@ static int mmc_blk_err_check(struct mmc_card *card,
 	if (!card->ext_csd.cmdq_mode_en) {
 		if (brq->sbc.error || brq->cmd.error || brq->stop.error ||
 		    brq->data.error) {
-			switch (mmc_blk_cmd_recovery(card, req,
-							brq, &ecc_err)) {
+			switch (mmc_blk_cmd_recovery(card, req,	brq, &ecc_err, &gen_err)) {
 			case ERR_RETRY:
 				return MMC_BLK_RETRY;
 			case ERR_ABORT:
@@ -2301,7 +2300,6 @@ static int mmc_blk_issue_rq(struct mmc_queue *mq, struct request *req)
 	struct mmc_host *host = card->host;
 	unsigned int cmd_flags = req ? req->cmd_flags : 0;
 	unsigned long flags;
-	unsigned int cmd_flags = req ? req->cmd_flags : 0;
 
 #ifdef CONFIG_MMC_BLOCK_DEFERRED_RESUME
 	if (mmc_bus_needs_resume(card->host))
