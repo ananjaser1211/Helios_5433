@@ -443,6 +443,8 @@ static int __cpuinit exynos4_local_timer_setup(struct clock_event_device *evt)
 		tick_base_cnt = 1;
 		exynos4_mct_write(tick_base_cnt, mevt->base + MCT_L_TCNTB_OFFSET);
 	}
+	clockevents_config_and_register(evt, clk_rate / (TICK_BASE_CNT + 1),
+					0xf, 0x7fffffff);
 
 	if (mct_int_type == MCT_INT_SPI) {
 		struct irqaction *mct_irq = this_cpu_ptr(&percpu_mct_irq);
