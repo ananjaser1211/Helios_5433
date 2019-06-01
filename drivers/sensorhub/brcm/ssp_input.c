@@ -19,12 +19,14 @@
 #include <linux/iio/events.h>
 #include <linux/iio/buffer.h>
 #include <linux/iio/types.h>
+
 #include <linux/moduleparam.h>
 
 static int wl_prox = 1;
 module_param(wl_prox, int, 0644);
 static int wl_humi = 2;
 module_param(wl_humi, int, 0644);
+
 /*************************************************************************/
 /* SSP Kernel -> HAL input evnet function                                */
 /*************************************************************************/
