@@ -89,31 +89,6 @@ on boot
     chown system system /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy
     chmod 0660 /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy
 
-# SensorHub
-    chown system radio /sys/class/sensors/ssp_sensor/enable
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_rev
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_name
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_test
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_reset
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_update
-    chown system radio /sys/class/sensors/ssp_sensor/mcu_sleep_test
-    chown system radio /sys/class/sensors/ssp_sensor/ori_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/mag_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/shake_cam
-
-# Sensorhub IIO
-    chown system radio /sys/class/sensors/ssp_sensor/accel_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/rot_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/game_rot_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/step_det_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/gyro_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/uncalib_gyro_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/mag_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/uncal_mag_poll_delay
-    chown system radio /sys/class/sensors/ssp_sensor/ssp_flush
-    chmod 0600 /dev/batch_io
-    chown system system /dev/batch_io  
-
 on fs
 # Permissions for ION
     chmod 0660 /sys/class/ion_cma/ion_video_ext/isolated
