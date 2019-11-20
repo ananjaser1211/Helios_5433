@@ -23,6 +23,12 @@ RUN=/sbin/busybox;
 LOGFILE=/data/helios/boot.log
 REBOOTLOGFILE=/data/helios/reboot.log
 
+if [ -e /data/helios ]; then
+for FILE in /data/helios/*; do
+  $RUN rm -f $FILE
+done;
+fi
+
 log_print() {
   echo "$1"
   echo "$1" >> $LOGFILE
@@ -31,6 +37,9 @@ rebootlog_print() {
   echo "$1"
   echo "$1" >> $REBOOTLOGFILE
 }
+
+log_print "------------------------------------------------------"
+log_print "**helios boot script started at $( date +"%d-%m-%Y %H:%M:%S" )**"
 
    log_print "Creat Dirs"
 
@@ -52,22 +61,6 @@ if [ -e /data/helios/Refined_logger.log ]; then
   cp "/data/helios/Refined_logger.log" "/data/heliosLogcat/Refined_Logger_$(date +"%d-%m-%Y %H:%M:%S").log"
 fi
 
-for FILE in /data/helios/*; do
-	$RUN rm -f $FILE
-done;
-
-log_print "------------------------------------------------------"
-
-
-log_print "------------------------------------------------------"
-log_print "**helios boot script started at $( date +"%d-%m-%Y %H:%M:%S" )**"
-
-if [ -z "$(ls -A /data/dalvik-cache/arm)" ]; then
-   rebootlog_print "dalvik cache not built, rebooted at $( date +"%d-%m-%Y %H:%M:%S" )"
-   reboot
-else
-   log_print "dalvik cache already built, nothing to do"
-fi
    log_print "Mounting"
 # Initial
 mount -o remount,rw -t auto /
@@ -100,7 +93,7 @@ chmod 640 /sys/fs/selinux/enforce
 /sbin/fakeprop -n ro.boot.fmp_config "1"
 /sbin/fakeprop -n sys.oem_unlock_allowed "0"
 
-   log_print "Disabling Panis"
+   log_print "Disabling Panics"
 
 # Panic off
 $RUN sysctl -w vm.panic_on_oom=0
@@ -113,10 +106,25 @@ $RUN sysctl -w kernel.panic=0
 if [ -d /system/priv-app/Rlc ]; then
 	rm -rf /system/priv-app/Rlc
 fi
+
+   log_print "Remove SecurityLogAgent"
+
 # Disabling unauthorized changes warnings...
 if [ -d /system/app/SecurityLogAgent ]; then
 rm -rf /system/app/SecurityLogAgent
 fi
+
+   log_print "Add Personalists"
+
+# Write personalists xml for libpersona.so
+
+if [ ! -f /data/system/users/0/personalist.xml ]; then
+	touch /data/system/users/0/personalist.xml
+fi;
+if [ ! -r /data/system/users/0/personalist.xml ]; then
+ 	chmod 600 /data/system/users/0/personalist.xml
+ 	chown system:system /data/system/users/0/personalist.xml
+fi;
 
    log_print "Disable Tracing"
 
@@ -151,11 +159,6 @@ su -c "pm enable com.google.android.gsf/.update.SystemUpdateService"
 su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver"
 su -c "pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver"
 
-   log_print "Start RefinedLogger"
-
-# RefinedLogger
-/system/bin/logcat *:E > /data/helios/Refined_logger.log
-
    log_print "Remount"
 
 mount -o remount,ro -t auto /
@@ -164,6 +167,10 @@ mount -o remount,ro -t auto /system
 mount -o remount,rw /data
 mount -o remount,rw /cache
 
+   log_print "Start RefinedLogger"
+
    log_print "**helios early boot script finished at $( date +"%d-%m-%Y %H:%M:%S" )**"
    log_print "------------------------------------------------------"
 
+   # RefinedLogger
+/system/bin/logcat *:E > /data/helios/Refined_logger.log
