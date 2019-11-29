@@ -19,7 +19,7 @@
 # Main Dir
 CR_DIR=$(pwd)
 # Define toolchan path
-CR_TC=/home/aj1211/Android/Toolchains/linaro-4.9.4-arm-eabi/bin/arm-eabi-
+CR_TC=~/Android/Toolchains/linaro-4.9.4-arm-eabi/bin/arm-eabi-
 # Define proper arch and dir for dts files
 CR_DTS=arch/arm/boot/dts
 # Define boot.img out dir
@@ -82,20 +82,20 @@ CR_RAMDISK_N916SLK=$CR_DIR/Helios/Device-specific/N916S
 
 read -p "Clean source (y/n) > " yn
 if [ "$yn" = "Y" -o "$yn" = "y" ]; then
-     echo "Clean Build"    
-     make clean && make mrproper    
+     echo "Clean Build"
+     make clean && make mrproper
      rm -r -f $CR_DTB
      rm -rf $CR_DTS/.*.tmp
      rm -rf $CR_DTS/.*.cmd
      rm -rf $CR_DTS/*.dtb
      rm -rf $CR_DIR/.config
-     rm -rf $CR_OUT/*.img    
+     rm -rf $CR_OUT/*.img
 else
      echo "Dirty Build"
      rm -r -f $CR_DTB
      rm -rf $CR_DTS/.*.tmp
      rm -rf $CR_DTS/.*.cmd
-     rm -rf $CR_DTS/*.dtb          
+     rm -rf $CR_DTS/*.dtb
 fi
 
 BUILD_IMAGE_NAME()
