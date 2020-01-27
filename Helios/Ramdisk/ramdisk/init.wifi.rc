@@ -64,6 +64,8 @@ on post-fs-data
     chown system root /data/misc/conn/.softap.info
     chmod 0666 /data/misc/conn/.softap.info
 
+    start macloader
+
 on boot
     setprop wifi.interface wlan0
 
@@ -98,6 +100,7 @@ service wlandutservice /system/bin/wlandutservice
 
 service macloader /system/bin/macloader
     class main
+    disabled
     oneshot
 
 on property:init.svc.macloader=stopped
