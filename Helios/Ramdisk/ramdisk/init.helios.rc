@@ -7,8 +7,10 @@
 #
 on early-init
     start perm
-	start sensorhubservice
-	start lhd
+    exec u:r:init:s0 root root -- /sbin/wifiloader.sh
+    start wifiinit
+    start sensorhubservice
+    start lhd
 
 on boot
 
@@ -184,6 +186,12 @@ service zipalign /sbin/zipalign.sh
     disabled
 
 service initd /sbin/initd.sh
+    user root
+    seclabel u:r:init:s0
+    oneshot
+    disabled
+
+service wifiinit /sbin/wifiloader.sh
     user root
     seclabel u:r:init:s0
     oneshot
