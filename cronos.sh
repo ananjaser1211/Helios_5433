@@ -33,7 +33,7 @@ CR_DTB=$CR_DIR/boot.img-dtb
 # Kernel Ramdisk/split-img
 CR_RAMDISK_MAIN=$CR_DIR/Helios/Ramdisk
 # Kernel Name and Version
-CR_VERSION=V3.0
+CR_VERSION=V3.1
 CR_NAME=Helios_Kernel
 # Thread count
 CR_JOBS=$((`nproc`-1))
