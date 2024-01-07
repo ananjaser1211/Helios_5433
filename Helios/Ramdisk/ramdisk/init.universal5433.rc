@@ -145,6 +145,12 @@ on post-fs-data
 on boot
     # Ensure all CPUs are online (big cluster)
     write /sys/devices/system/cpu/cpu4/online 1
+	
+    # Disable Hotplugging for little cluster
+    write /sys/power/little_core_hotplug_in 1
+	
+    # Disable Hotplugging all together
+    write /sys/power/enable_dm_hotplug 0
 
     # Update cpusets now that processors are up
     write /dev/cpuset/foreground/cpus 0-7
@@ -226,12 +232,14 @@ on boot
     chown radio system /sys/power/enable_dm_hotplug
     chown radio system /sys/power/ipa/control_temp
     chown radio system /sys/power/ipa/hotplug_out_threshold
+	chown radio system /sys/power/little_core_hotplug_in
     chmod 0664 /sys/power/cpufreq_table
     chmod 0664 /sys/power/cpufreq_max_limit
     chmod 0664 /sys/power/cpufreq_min_limit
     chmod 0664 /sys/power/enable_dm_hotplug
     chmod 0664 /sys/power/ipa/control_temp
     chmod 0664 /sys/power/ipa/hotplug_out_threshold
+	chmod 0664 /sys/power/little_core_hotplug_in
 
     chown radio system /sys/devices/platform/exynos5-devfreq-mif/devfreq/exynos5-devfreq-mif/available_frequencies
     chmod 664 /sys/devices/platform/exynos5-devfreq-mif/devfreq/exynos5-devfreq-mif/available_frequencies
